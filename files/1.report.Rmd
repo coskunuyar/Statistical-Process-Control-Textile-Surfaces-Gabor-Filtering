@@ -1,0 +1,114 @@
+---
+title: "Report"
+author: "kk"
+date: "5 Ocak 2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### INTRODUCTION
+
+	Linen is a flax based textile commonly used for homeware applications. Tough, linen is similar to cotton, it is made from fibers derived from the stems of the flax plant   instead of the bolls that grow around cotton seeds. Garments made of linen are desirable in hot and humid climates, which tends to retain moisture for a significant period of time, linen dries quickly, which helps reduce heat retention in overly warm. The usage areas of the linen is extremely wide. For example, the Ancient Egyptians sometimes used linen as a bonafide type of currency. This fabric was also used to make the burial shrouds and wrappings for mummies.
+	Since the defects on the surface of textile product decrease the quality of the clothing, inspection of the fabric during the production process very significant. The fiber has relatively higher production costs.Hence, the defect on the product should be detected on the early stage of the production. Otherwise, the amend of the problem would be much bigger . Due to the fibrous nature of the linen fabric, the defects are very small and hard to detect.Hence, the production process must be examined very carefully. Compared to other fabric types, it has a much more knitted structure. Because of that, minor errors may cause much bigger problems. Therefore, the quality of the fabrics should be carefully examined. At this point, defects can be detected and eliminated quickly by monitor processing methods. For this reason, monitoring procees are valuable for the linen industry.
+	Consequently, quality is very important parameter for textile, so good quality products is a key issue for increasing rate of profit and customer satisfaction. The aim of inspection process is to identify the occurred errors or defects by the means of process monitoring. One of the monitor process technique is the Gabor filtering. In this part of the project ,this method is used. Frequency and orientation representations of Gabor filters provide a convenience to analyse the textural patterns. In the time domain, a 2D Gabor filter is a Gaussian kernel function modulated by a sinusoidal plane wave. Gabor filters which are used in applications look in very complex structure, but they are deriving by the dilation and orientation of main wave. 
+
+
+### BACKGROUND INFORMATION:
+
+All of the people use clothes to cover their bodys. Henc e, textile industry is very important sector. Linen is one of the most commonly used material and it has a very sentive structure. As a result, the quality control is very  significant  for textile. Inspection for quality control identifies the occurred errors or defect, if any exists, then to change the parameter or give alert to inspector for checking the production process. Commonly, there are used two types of detection models, they are Human Based Inspection Systems and Automated based Inpection Systems.
+	Traditionally, as its name states. Human based Inspection Systems based on human. After manufacturing process, inspection units are used for checking the weaved fabrics. When the inspector notices a defect on the moving fabric, then he records the defect and its location. During the inspection process, if the operator encounters with too many defects, the inspector warns the production department for immediate correction of faults. Either the new parameter are entered the weave machine or the production is stopped
+	High cost, low accuracy and very slow performance of human visual inspection has increased interest in automatic inspection systems, so nowadays more researches are working on automatic inspection systems. Automatic inspection systems are designed for increasing the precision, stability and speed with respect to Human Inspection Systems. Beside this, these automatic inspection systems provide high defect detection rates. Moreover, these systems also reduce labour costs, improve product quality and increase manufacturing efficiency. (H. Sari-Sarraf and J. S. Goddard, 1999). Automated inspection systems use the following techniques:
+•	Statistical texture analysis approach
+•	Texture model-based approach
+•	Structural approach
+•	Signal processing-based approach
+	Statistical analysis approach consists of auto-correlation function, co-occurrence matrix, mathematical morphology and  fractal method. 
+	The second category model-based approach, the commonly used techniques is Markov random field Gaussian Markov random field (S. Ozdemir, A. Ercil, 1996). Texture features of a studied texture, and can represent more precisely spatial interrelationships between the grey levels in the texture.
+	The structural approach use properties of the primitives of the defect-free fabric texture for presence of the defective region, and their related placement rules. This approach further consists of the following methods:
+•	Spatial filtering 
+•	Karhunen-Loeve transform
+•	Fourier transform
+•	Gabor transform
+•	Wavelets transform
+
+
+### Approach and Results
+#### Results of other images are provided seperately.
+
+Gabor transform
+
+J. G. Daugman can recognize the simple cells in the visual cortex and modelled cells by using Gabor functions. Frequency and orientation representations of Gabor filters provide a convenience to analyze the textural patterns. In the time domain, a 2D Gabor filter is a Gaussian kernel function modulated by a sinusoidal plane wave. Gabor filters which are used in applications look in very complex structure, but they are deriving by the dilation and orientation of main wave.
+
+After the classical definition mentioned above, when we look at how we used Gabor transform in practice, we were able to observe the frequency changes in each direction and region thanks to Gabor transform. It also eliminated autocorrelations. Applying this algorithm to a textile image makes the defect more detectable. When using a Gabor filter, we must give it certain parameters so that it determines  frequency changes. The parameters are θ, λ , ψ, σ, γ.   λ denotes the wavelength of the sinusoidal factor. θ show the orientation of the normal to the parallel stripes of a Gabor function. ψ define the phase offset, σ is the sigma of the Gaussian envelope and γ specifies the ellipticity of the support of the Gabor function We have carefully set these parameters for each image to reach best results.
+
+```{r}
+library(jpeg)
+library(wvtool)
+library("matrixStats")
+imgActual <- readJPEG("C:/Fabric1-ConvertImage.jpg")
+img1 <- readJPEG("C:/Fabric1-ConvertImage.jpg")
+```
+  The R code above is utilized for calling needed libraries and getting images from the files. All of the images are converted to grayscale before getting started. There are two copies restored. The former one is kept as original format and second one is manipulated by converting out of control pixel values 0, which corresponds black pixel.
+```{r}
+gaborFilter <- gabor.filter(x=imgActual, lamda=10, theta=0, bw=1.5, phi=0, asp=0.3, disp=TRUE)
+imgGabor <-gaborFilter$filtered_img
+
+```
+  Before investigating statistical process control, we have conducted to preprocessing which includes filtering. For this purpose, we apply gabor filtering to original texture image. Gabor filter function was already present in the wvtool library. We have decided parameters manually for each texture since every one of the has different and necessarily unique patterns. 
+```{r}
+# Column Gabor
+mean_col_Gabor <- colMeans(imgGabor)
+std_col_Gabor <- colSds(imgGabor)
+control_limits_col_Gabor <- matrix(,512,3)
+control_limits_col_Gabor[1:512,1] = mean_col_Gabor[1:512]-(3)*std_col_Gabor[1:512]
+control_limits_col_Gabor[1:512,2] = mean_col_Gabor[1:512]
+control_limits_col_Gabor[1:512,3] = mean_col_Gabor[1:512]+(3)*std_col_Gabor[1:512]
+for(i in 1:512){
+  for(k in 1:512){
+    if(imgGabor[i,k] < control_limits_col_Gabor[i,1] | imgGabor[i,k] > control_limits_col_Gabor[i,3] ){
+      img1[i,k] = 0;
+    } 
+  }
+}
+# Row Gabor
+mean_row_Gabor <- rowMeans(imgGabor)
+std_row_Gabor <- rowSds(imgGabor)
+control_limits_row_Gabor <- matrix(,512,3)
+control_limits_row_Gabor[1:512,1] = mean_row_Gabor[1:512]-(3)*std_row_Gabor[1:512]
+control_limits_row_Gabor[1:512,2] = mean_row_Gabor[1:512]
+control_limits_row_Gabor[1:512,3] = mean_row_Gabor[1:512]+(3)*std_row_Gabor[1:512]
+for(i in 1:512){
+  for(k in 1:512){
+    if(imgGabor[i,k] < control_limits_row_Gabor[i,1] | imgGabor[i,k] > control_limits_row_Gabor[i,3] ){
+      img1[i,k] = 0;
+    } 
+  }
+}
+
+```
+  After filtering the images in a way that their pattern is perished and defects can be visualised, we have applied process control according to both column and row values. For this purpose, a matris is generated to store LCL, CL, and UCL. 3sigma control limits are used for every image. Out of control values are found in filtered image, the corresponding pixel in the actual image is converted to 0, so that actual image is manipulated. The filtered image is only utilized for the determining the out of pixels.
+```{r}
+require(grDevices)
+op <- par(bg = "magenta")
+plot(c(100, 1200), c(100, 710), type = "n", xlab = "", ylab = "")
+rasterImage(imgActual, 100, 105, 612, 617, interpolate = FALSE)
+rasterImage(img1, 652, 105, 1164, 617, interpolate = FALSE)
+par(op)
+
+```
+  And lastly, to see the difference, we have depicted the original image on the left and the manipulated image on the right. As we can see above, the white pixels that impair the harmony of the linen are detected and the detection is illustrated by black pixels.
+  
+### Conclusions and Future Work
+In conclusion,  linen has a significant role and importance in textile industry. It is preferred by manufacturers a lot; however, it is a common scenerio that linen has flaws due to its fiberous stracture and thereby delicacy. Therefore, its quality control is a serious matter that must be taken into account. On the other hand, process control on the linen images is not easy since it has pattern; for this purpose some preprocessing such as Gabor filter can be used.
+
+In this project have used Gabor filter before statistical quality control in order to get rid of autocorrelation and analyze the fraquency changes in any direction and region.
+
+In this Gabor filtering process, it is crucial to select appropriate parameter and it is done manually. After this preprocess we obtain a filtered image which can be used in genaral statistical quality control methods.  So, we construct 3-sigma control charts to detect out of control pixels.Out of control pixels are detected both vertically and horizontally.And we succeeded to detect the defects in the original images.
+
+### REFERENCES:
+https://www.intechopen.com/books/textile-manufacturing-processes/introductory-chapter-textile-manufacturing-processes
+https://sewport.com/fabrics-directory/linen-fabric
+  
